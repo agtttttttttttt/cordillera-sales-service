@@ -38,6 +38,14 @@ public class SucursalController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(sucursal));
     }
 
+    @PostMapping("/batch")
+    public ResponseEntity<List<Sucursal>> createBatch(@RequestBody List<Sucursal> sucursales) {
+        List<Sucursal> saved = sucursales.stream()
+                .map(service::save)
+                .toList();
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Sucursal> update(@PathVariable Long id, @RequestBody Sucursal sucursal) {
         return ResponseEntity.ok(service.update(id, sucursal));
