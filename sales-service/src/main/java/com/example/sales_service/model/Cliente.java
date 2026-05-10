@@ -1,5 +1,6 @@
 package com.example.sales_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -31,6 +32,7 @@ public class Cliente {
     private LocalDate fechaRegistro = LocalDate.now();
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"cliente", "sucursal", "detalleVentas"})
     private List<Venta> ventas;
 
     public Long getId() { return id; }

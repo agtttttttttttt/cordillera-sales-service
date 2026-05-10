@@ -1,5 +1,6 @@
 package com.example.sales_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class Sucursal {
     private String estado = "ACTIVO";
 
     @OneToMany(mappedBy = "sucursal", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"sucursal", "cliente", "detalleVentas"})
     private List<Venta> ventas;
 
     public Long getId() { return id; }

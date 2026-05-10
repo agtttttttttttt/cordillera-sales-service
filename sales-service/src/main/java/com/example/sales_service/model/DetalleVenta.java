@@ -1,5 +1,6 @@
 package com.example.sales_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
@@ -13,6 +14,7 @@ public class DetalleVenta {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venta_id", nullable = false)
+    @JsonIgnoreProperties({"detalleVentas", "cliente", "sucursal"})
     private Venta venta;
 
     @ManyToOne(fetch = FetchType.LAZY)

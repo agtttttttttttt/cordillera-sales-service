@@ -1,5 +1,6 @@
 package com.example.sales_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,16 +23,19 @@ public class Venta {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
+    @JsonIgnoreProperties({"ventas"})
     private Cliente cliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sucursal_id", nullable = false)
+    @JsonIgnoreProperties({"ventas"})
     private Sucursal sucursal;
 
     @Column(length = 20)
     private String estado = "COMPLETADA";
 
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"venta"})
     private List<DetalleVenta> detalleVentas = new ArrayList<>();
 
     public Long getId() { return id; }
