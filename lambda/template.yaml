@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  InvoiceQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: invoice-notifications
+      VisibilityTimeout: 30
+
+  ProcessInvoiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: process_invoice.lambda_handler
+      Runtime: python3.12
+      Policies:
+        - SQSPollerPolicy:
+            QueueName: !GetAtt InvoiceQueue.QueueName
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt InvoiceQueue.Arn
+            BatchSize: 1
+
+Outputs:
+  QueueUrl:
+    Value: !Ref InvoiceQueue
+  QueueArn:
+    Value: !GetAtt InvoiceQueue.Arn
+  FunctionArn:
+    Value: !GetAtt ProcessInvoiceFunction.Arn

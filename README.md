@@ -6,6 +6,10 @@ Solución empresarial distribuida basada en microservicios para la gestión de p
 
 ```
 [Cliente] → [API REST :8180] → [JWT Auth] → [Controller] → [Service] → [Repository] → [MySQL]
+                                                                       ↓
+                                                              [AWS SQS Queue]
+                                                                       ↓
+                                                              [AWS Lambda]
 ```
 
 ## Microservicios
@@ -52,6 +56,27 @@ mvn clean package -DskipTests
 java -jar target/backend-0.0.1-SNAPSHOT.jar
 ```
 
+## AWS FaaS (Serverless)
+
+Cuando se crea una factura, el backend envía un mensaje a **AWS SQS**. Una **AWS Lambda** (Python 3.12) procesa el mensaje para notificaciones.
+
+### Despliegue con SAM
+
+```bash
+cd lambda
+sam build
+sam deploy --guided
+```
+
+### Stack de AWS
+
+| Recurso | Tipo | Descripción |
+|---------|------|-------------|
+| `InvoiceQueue` | SQS | Cola de mensajes de facturación |
+| `ProcessInvoiceFunction` | Lambda | Procesa mensajes de la cola |
+
+Componentes en `lambda/template.yaml` y `lambda/process_invoice.py`.
+
 ## Estructura del proyecto
 
 ```
@@ -60,6 +85,7 @@ src/main/java/com/duoc/backend/
 ├── Care/          → controller, service, repository, model
 ├── Invoice/       → controller, service, repository, model
 ├── Medication/    → controller, service, repository, model
+├── Notification/  → SqsService (AWS SQS producer)
 ├── Patient/       → controller, service, repository, model
 ├── LoginController.java       → autenticación
 ├── WebSecurityConfig.java     → seguridad Spring

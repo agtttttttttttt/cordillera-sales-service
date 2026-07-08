@@ -4,6 +4,7 @@ import com.duoc.backend.Care.Care;
 import com.duoc.backend.Care.CareRepository;
 import com.duoc.backend.Medication.Medication;
 import com.duoc.backend.Medication.MedicationRepository;
+import com.duoc.backend.Notification.SqsService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,9 @@ public class InvoiceService {
 
     @Autowired
     private CareRepository careRepository;
+
+    @Autowired
+    private SqsService sqsService;
 
     public Iterable<Invoice> getAllInvoices() {
         return invoiceRepository.findAll();
@@ -65,7 +69,21 @@ public class InvoiceService {
         invoice.setTotalCost(totalCareCost + totalMedicationCost);
 
         // Guardar la factura en el repositorio
-        return invoiceRepository.save(invoice);
+        Invoice saved = invoiceRepository.save(invoice);
+
+        // Enviar notificación a AWS SQS
+        try {
+            String message = String.format(
+                "Factura #%d - Paciente: %s - Total: $%.2f",
+                saved.getId(), saved.getPatientName(), saved.getTotalCost()
+            );
+            sqsService.sendMessage(message);
+        } catch (Exception e) {
+            // Si SQS falla, no bloquear la creación de la factura
+            System.err.println("Error enviando mensaje a SQS: " + e.getMessage());
+        }
+
+        return saved;
     }
 
     public Invoice updateInvoice(Long id, Invoice invoiceDetails) {
